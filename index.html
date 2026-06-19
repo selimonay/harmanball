@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HARMANBALL</title>
+<style>
+  :root{
+    --grass-dark:#0b3d24;
+    --grass:#114a2c;
+    --grass-light:#1c5e38;
+    --chalk:#f4f1e8;
+    --gold:#e8b339;
+    --gold-deep:#c4912a;
+    --ink:#06200f;
+    --red:#c1462f;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+
+  body{
+    min-height:100vh;
+    background:
+      repeating-linear-gradient(
+        90deg,
+        var(--grass) 0px, var(--grass) 80px,
+        var(--grass-light) 80px, var(--grass-light) 160px
+      );
+    font-family:'Oswald', 'Arial Narrow', Arial, sans-serif;
+    color:var(--chalk);
+    display:flex;
+    justify-content:center;
+    position:relative;
+    overflow-x:hidden;
+  }
+
+  @font-face{
+    font-family:'Oswald';
+    src:local('Oswald');
+  }
+
+  /* ===== Saha çizgileri (dekor) ===== */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    background:
+      linear-gradient(rgba(244,241,232,0.16) 0 2px, transparent 2px) 0 0/100% 100%;
+    z-index:0;
+  }
+
+  .field-border{
+    position:fixed;
+    inset:18px;
+    border:3px solid rgba(244,241,232,0.22);
+    border-radius:6px;
+    pointer-events:none;
+    z-index:0;
+  }
+
+  .container{
+    position:relative;
+    z-index:1;
+    width:100%;
+    max-width:560px;
+    padding:20px 20px 24px;
+  }
+
+  /* ===== Ekran geçişleri ===== */
+  .screen{display:none;}
+  .screen.active{display:block; animation:fadeIn .35s ease;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);}}
+
+  /* ===== Ana sayfa ===== */
+  .brand{
+    text-align:center;
+    margin-bottom:6px;
+  }
+  .brand .ball{
+    font-size:38px;
+    display:inline-block;
+    transform:translateY(2px);
+  }
+  .brand h1{
+    font-size:54px;
+    letter-spacing:4px;
+    margin:4px 0 0;
+    font-weight:700;
+    color:var(--chalk);
+    text-shadow:3px 3px 0 var(--ink);
+  }
+  .brand .tagline{
+    text-align:center;
+    color:var(--gold);
+    letter-spacing:3px;
+    font-size:13px;
+    text-transform:uppercase;
+    margin:6px 0 34px;
+    opacity:.9;
+  }
+
+  .mode-card{
+    background:linear-gradient(160deg, #ffffff08, #00000022);
+    border:2px solid rgba(244,241,232,0.25);
+    border-radius:14px;
+    padding:22px 20px;
+    margin-bottom:18px;
+    text-align:center;
+    backdrop-filter: blur(2px);
+  }
+  .mode-card .mode-eyebrow{
+    font-size:12px;
+    letter-spacing:3px;
+    color:var(--gold);
+    text-transform:uppercase;
+    margin-bottom:8px;
+  }
+  .mode-card h2{
+    font-size:26px;
+    margin:0 0 6px;
+    letter-spacing:1px;
+  }
+  .mode-card h2 .vs{
+    color:var(--gold);
+    font-weight:400;
+    font-size:20px;
+    margin:0 6px;
+  }
+  .mode-card p{
+    margin:0 0 18px;
+    font-size:14px;
+    color:#d8d4c4;
+    line-height:1.5;
+  }
+
+  button{
+    font-family:inherit;
+    border:none;
+    cursor:pointer;
+  }
+
+  .btn-start{
+    background:var(--gold);
+    color:var(--ink);
+    font-size:18px;
+    font-weight:700;
+    letter-spacing:2px;
+    padding:14px 38px;
+    border-radius:8px;
+    text-transform:uppercase;
+    box-shadow:0 4px 0 var(--gold-deep), 0 6px 14px rgba(0,0,0,.35);
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .btn-start:active{
+    transform:translateY(4px);
+    box-shadow:0 0 0 var(--gold-deep), 0 2px 6px rgba(0,0,0,.35);
+  }
+
+  .credit{
+    text-align:center;
+    font-size:11px;
+    letter-spacing:2px;
+    color:rgba(244,241,232,0.35);
+    margin-top:10px;
+    text-transform:uppercase;
+  }
+
+  /* ===== Oyun ekranı ===== */
+  .game-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:30px;
+  }
+  .back-btn{
+    background:transparent;
+    color:var(--chalk);
+    opacity:.7;
+    font-size:13px;
+    letter-spacing:1px;
+    padding:6px 0;
+  }
+  .back-btn:hover{opacity:1;}
+  .game-label{
+    font-size:13px;
+    letter-spacing:3px;
+    color:var(--gold);
+    text-transform:uppercase;
+  }
+
+  .round-counter{
+    text-align:center;
+    font-size:12px;
+    letter-spacing:3px;
+    color:rgba(244,241,232,.55);
+    text-transform:uppercase;
+    margin-bottom:18px;
+  }
+
+  /* Geri sayım dairesi */
+  .countdown-wrap{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:50px 0 30px;
+  }
+  .countdown-circle{
+    width:180px;
+    height:180px;
+    border-radius:50%;
+    border:6px solid var(--chalk);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    background:radial-gradient(circle, rgba(244,241,232,0.06), transparent 70%);
+  }
+  .countdown-circle::after{
+    content:"";
+    position:absolute;
+    inset:-6px;
+    border-radius:50%;
+    border:6px solid var(--gold);
+    clip-path:polygon(50% 50%, 50% 0%, 50% 0%);
+  }
+  .countdown-num{
+    font-size:92px;
+    font-weight:700;
+    color:var(--chalk);
+    line-height:1;
+  }
+  .countdown-hint{
+    margin-top:24px;
+    font-size:14px;
+    letter-spacing:2px;
+    color:rgba(244,241,232,.5);
+    text-transform:uppercase;
+  }
+
+  /* Eşleşme ekranı */
+  .matchup-wrap{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:36px 0 20px;
+    text-align:center;
+  }
+  .matchup-card{
+    width:100%;
+  }
+  .side{
+    font-size:34px;
+    font-weight:700;
+    letter-spacing:1px;
+    padding:14px 10px;
+    line-height:1.15;
+    opacity:0;
+    transform:scale(.7);
+  }
+  .side.team-a{color:var(--chalk);}
+  .side.team-b{color:var(--gold);}
+  .side.pop{
+    animation:popIn .5s cubic-bezier(.34,1.56,.64,1) forwards;
+  }
+  @keyframes popIn{
+    0%{opacity:0; transform:scale(.5);}
+    60%{opacity:1; transform:scale(1.12);}
+    100%{opacity:1; transform:scale(1);}
+  }
+
+  .vs-divider{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    margin:6px 0;
+    opacity:0;
+  }
+  .vs-divider.show{
+    animation:fadeIn .4s ease forwards;
+  }
+  .vs-divider .line{
+    height:2px;
+    width:46px;
+    background:rgba(244,241,232,.35);
+  }
+  .vs-divider .vs-text{
+    font-size:15px;
+    letter-spacing:3px;
+    color:var(--red);
+    font-weight:700;
+  }
+
+  .continue-btn{
+    margin-top:38px;
+    background:var(--chalk);
+    color:var(--ink);
+    font-size:16px;
+    font-weight:700;
+    letter-spacing:2px;
+    padding:13px 34px;
+    border-radius:8px;
+    text-transform:uppercase;
+    box-shadow:0 4px 0 #b7b3a3, 0 6px 14px rgba(0,0,0,.3);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .3s ease;
+  }
+  .continue-btn.ready{
+    opacity:1;
+    pointer-events:auto;
+  }
+  .continue-btn:active{
+    transform:translateY(4px);
+    box-shadow:0 0 0 #b7b3a3, 0 2px 6px rgba(0,0,0,.3);
+  }
+
+  @media (max-width:420px){
+    .brand h1{font-size:40px;}
+    .side{font-size:26px;}
+    .countdown-num{font-size:72px;}
+    .countdown-circle{width:150px; height:150px;}
+  }
+
+  @media (max-width:420px) and (max-height:700px){
+    .brand .tagline{margin-bottom:20px;}
+    .mode-card{padding:16px 18px; margin-bottom:14px;}
+    .mode-card p{margin-bottom:14px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="field-border"></div>
+
+<div class="container">
+
+  <!-- ===== ANA SAYFA ===== -->
+  <section id="home" class="screen active">
+    <div class="brand">
+      <span class="ball">⚽</span>
+      <h1>HARMANBALL</h1>
+    </div>
+    <p class="tagline">Ortak futbolcuyu bul</p>
+
+    <div class="mode-card">
+      <div class="mode-eyebrow">Mod 1</div>
+      <h2>TAKIM <span class="vs">vs</span> TAKIM</h2>
+      <p>İki rastgele kulüp ekrana gelir.<br>Bu iki takımda da oynamış bir futbolcu bul.</p>
+      <button class="btn-start" onclick="startGame('team-team')">Başla</button>
+    </div>
+
+    <div class="mode-card">
+      <div class="mode-eyebrow">Mod 2</div>
+      <h2>ÜLKE <span class="vs">vs</span> TAKIM</h2>
+      <p>Bir ülke ve bir kulüp ekrana gelir.<br>O ülkeden olup o kulüpte oynamış bir futbolcu bul.</p>
+      <button class="btn-start" onclick="startGame('country-team')">Başla</button>
+    </div>
+
+    <div class="credit">2 kişilik &middot; sesli oyna &middot; kazanan ilk bilen</div>
+  </section>
+
+  <!-- ===== OYUN EKRANI ===== -->
+  <section id="game" class="screen">
+    <div class="game-top">
+      <button class="back-btn" onclick="goHome()">&larr; Ana Sayfa</button>
+      <div class="game-label" id="gameLabel">MOD</div>
+    </div>
+
+    <div class="round-counter" id="roundCounter">Tur 1</div>
+
+    <!-- Geri sayım -->
+    <div id="countdownView" class="countdown-wrap">
+      <div class="countdown-circle">
+        <div class="countdown-num" id="countdownNum">5</div>
+      </div>
+      <div class="countdown-hint">Hazırlanın</div>
+    </div>
+
+    <!-- Eşleşme -->
+    <div id="matchupView" class="matchup-wrap" style="display:none;">
+      <div class="matchup-card">
+        <div class="side team-a" id="sideA">-</div>
+        <div class="vs-divider" id="vsDivider"><span class="line"></span><span class="vs-text">VS</span><span class="line"></span></div>
+        <div class="side team-b" id="sideB">-</div>
+      </div>
+      <button class="continue-btn" id="continueBtn" onclick="nextRound()">Devam Et</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const TEAMS = ["Bayer Leverkusen","Bayern Münih","Borussia Dortmund","Borussia Mönchengladbach","Eintracht Frankfurt","Hoffenheim","RB Leipzig","Schalke 04","Stuttgart","Wolfsburg","Athletic Club","Atlético Madrid","Barcelona","Betis","Celta Vigo","Real Madrid","Real Sociedad","Sevilla","Valencia","Villarreal","Lille","Lyon","Marseille","Monaco","Nice","Paris Saint-Germain","Rennes","Arsenal","Aston Villa","Blackburn Rovers","Bolton Wanderers","Bournemouth","Brighton & Hove Albion","Chelsea","Crystal Palace","Everton","Fulham","Hull City","Leeds United","Leicester City","Liverpool","Manchester City","Manchester United","Newcastle United","Nottingham Forest","Sunderland","Tottenham Hotspur","West Ham United","Wolverhampton Wanderers","Atalanta","Bologna","Brescia","Como","Fiorentina","Genoa","Inter","Juventus","Lazio","Milan","Napoli","Palermo","Parma","Roma","Sassuolo","Torino","Udinese","Adana Demirspor","Alanyaspor","Ankaragücü","Antalyaspor","Başakşehir","Beşiktaş","Bursaspor","Çaykur Rizespor","Eyüpspor","Fatih Karagümrük","Fenerbahçe","Galatasaray","Gaziantepspor","Gençlerbirliği","Hatayspor","İstanbulspor","Kasımpaşa","Kayserispor","Kocaelispor","Konyaspor","Samsunspor","Sivasspor","Trabzonspor","Köln"];
+
+const COUNTRIES = ["Arjantin","İspanya","Fransa","İngiltere","Portekiz","Brezilya","Fas","Hollanda","Belçika","Almanya","Hırvatistan","İtalya","Kolombiya","Meksika","Senegal","Uruguay","ABD","Japonya","İsviçre","İran","Danimarka","Türkiye","Ekvador","Avusturya","Güney Kore","Nijerya","Avustralya","Cezayir","Mısır","Kanada","Norveç","Ukrayna","Fildişi Sahili","Panama","Rusya","Polonya","Galler","İsveç","Macaristan","Çekya","Paraguay","İskoçya","Sırbistan","Kamerun","Tunus","Kongo DC","Slovakya","Yunanistan","Venezuela","Özbekistan","Şili","Peru","Kosta Rika","Romanya","Mali","Katar","Irak","İrlanda","Slovenya","Güney Afrika","Suudi Arabistan","Burkina Faso","Ürdün","Bosna","Honduras","Arnavutluk","Yeşil Burun","BAE","Kuzey Makedonya","Kuzey İrlanda","Jamaika","Gürcistan","Gana","İzlanda","Finlandiya","İsrail","Bolivya","Kosova","Umman","Karadağ","Gine","Curaçao","Haiti","Suriye","Yeni Zelanda","Gabon","Bulgaristan","Angola","Uganda","Zambiya"];
+
+let currentMode = null;
+let round = 0;
+let countdownTimer = null;
+let lastPair = null;
+
+function pickTwo(arr){
+  let i = Math.floor(Math.random()*arr.length);
+  let j = Math.floor(Math.random()*arr.length);
+  while(j === i) j = Math.floor(Math.random()*arr.length);
+  return [arr[i], arr[j]];
+}
+
+function getPair(){
+  if(currentMode === 'team-team'){
+    return pickTwo(TEAMS);
+  } else {
+    const country = COUNTRIES[Math.floor(Math.random()*COUNTRIES.length)];
+    const team = TEAMS[Math.floor(Math.random()*TEAMS.length)];
+    return [country, team];
+  }
+}
+
+function startGame(mode){
+  currentMode = mode;
+  round = 0;
+  document.getElementById('gameLabel').textContent = mode === 'team-team' ? 'TAKIM vs TAKIM' : 'ÜLKE vs TAKIM';
+  showScreen('game');
+  nextRound();
+}
+
+function goHome(){
+  clearInterval(countdownTimer);
+  showScreen('home');
+}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function nextRound(){
+  round++;
+  document.getElementById('roundCounter').textContent = 'Tur ' + round;
+  document.getElementById('matchupView').style.display = 'none';
+  document.getElementById('countdownView').style.display = 'flex';
+
+  const continueBtn = document.getElementById('continueBtn');
+  continueBtn.classList.remove('ready');
+
+  const sideA = document.getElementById('sideA');
+  const sideB = document.getElementById('sideB');
+  const vsDivider = document.getElementById('vsDivider');
+  sideA.classList.remove('pop');
+  sideB.classList.remove('pop');
+  vsDivider.classList.remove('show');
+
+  lastPair = getPair();
+
+  let count = 5;
+  const numEl = document.getElementById('countdownNum');
+  numEl.textContent = count;
+
+  clearInterval(countdownTimer);
+  countdownTimer = setInterval(() => {
+    count--;
+    if(count <= 0){
+      clearInterval(countdownTimer);
+      revealMatchup();
+    } else {
+      numEl.textContent = count;
+    }
+  }, 1000);
+}
+
+function revealMatchup(){
+  document.getElementById('countdownView').style.display = 'none';
+  document.getElementById('matchupView').style.display = 'flex';
+
+  const sideA = document.getElementById('sideA');
+  const sideB = document.getElementById('sideB');
+  const vsDivider = document.getElementById('vsDivider');
+
+  sideA.textContent = lastPair[0];
+  sideB.textContent = lastPair[1];
+
+  void sideA.offsetWidth;
+  sideA.classList.add('pop');
+
+  setTimeout(() => {
+    vsDivider.classList.add('show');
+  }, 150);
+
+  setTimeout(() => {
+    void sideB.offsetWidth;
+    sideB.classList.add('pop');
+  }, 300);
+
+  setTimeout(() => {
+    document.getElementById('continueBtn').classList.add('ready');
+  }, 900);
+}
+</script>
+
+</body>
+</html>
