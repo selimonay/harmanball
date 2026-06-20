@@ -254,7 +254,7 @@
     text-transform:uppercase;
   }
 
-  /* ===== Bilgilendirme / Mektup ===== */
+  /* ===== Antrenör Notu / Mektup ===== */
   .letter-wrap{
     display:flex;
     justify-content:center;
@@ -300,10 +300,14 @@
     position:relative;
     z-index:1;
   }
+  .nowrap-line{
+    white-space:nowrap;
+  }
 
   @media (max-width:420px){
     .letter-paper{padding:28px 22px 32px;}
     .letter-text{font-size:21px;}
+    .nowrap-line{font-size:18px; display:inline-block;}
   }
 
   /* ===== Oyun ekranı ===== */
@@ -497,7 +501,7 @@
 
 <div class="container">
 
-  <button class="info-btn" onclick="showScreen('info')" aria-label="Bilgilendirme">Bilgilendirme</button>
+  <button class="info-btn" onclick="showScreen('info')" aria-label="Antrenör Notu">Antrenör Notu</button>
 
   <div class="brand" onclick="goHome()" role="button" aria-label="Ana sayfaya dön">
     <span class="ball">⚽</span>
@@ -577,7 +581,7 @@
     </div>
   </section>
 
-  <!-- ===== BİLGİLENDİRME ===== -->
+  <!-- ===== ANTRENÖR NOTU ===== -->
   <section id="info" class="screen">
     <div class="game-top">
       <button class="back-btn" onclick="goHome()">&larr; Ana Sayfa</button>
@@ -590,7 +594,8 @@
           Bu site tamamen eğlenmeniz için tasarlandı! Yakında yepyeni oyun modlarıyla karşınızda olacağız. Bizi sosyal medyadan takip etmeyi ve oyundan en eğlenceli anlarınızı bizimle paylaşmayı unutmayın!<br><br>
           Sitemizi geliştirmemiz için olumlu veya olumsuz tüm yorum ve fikirlerinizi bize iletebilirsiniz:<br><br>
           ✦ Instagram: @harmanballoyna<br>
-          ✦ X (Twitter): @harmanballoyna<br><br>
+          ✦ X (Twitter): @harmanballoyna<br>
+          <span class="nowrap-line">✦ Mail: harmanballoyna@gmail.com</span><br><br>
           Harmanball'un gerçek üstatları Erman Yaşar ve Hasan Arda Kaşıkçı'ya da selamlar olsun! 🫡
         </p>
       </div>
