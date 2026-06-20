@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -167,6 +168,59 @@
     text-transform:uppercase;
   }
 
+  /* ===== Seviye seçim ekranı ===== */
+  .level-wrap{
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    padding:30px 0 10px;
+  }
+  .level-heading{
+    text-align:center;
+    font-size:14px;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    color:rgba(244,241,232,.55);
+    margin:0 0 26px;
+  }
+  .level-card{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    width:100%;
+    padding:26px 20px;
+    border-radius:14px;
+    margin-bottom:18px;
+    background:linear-gradient(160deg, #ffffff08, #00000022);
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .level-card:active{
+    transform:translateY(3px);
+  }
+  .level-normal{
+    border:2px solid rgba(232,179,57,0.55);
+    box-shadow:0 4px 0 rgba(232,179,57,0.25), 0 6px 14px rgba(0,0,0,.3);
+  }
+  .level-normal .level-name{color:var(--gold);}
+  .level-hard{
+    border:2px solid rgba(193,70,47,0.65);
+    box-shadow:0 4px 0 rgba(193,70,47,0.3), 0 6px 14px rgba(0,0,0,.3);
+  }
+  .level-hard .level-name{color:var(--red);}
+  .level-card .level-name{
+    font-size:28px;
+    font-weight:700;
+    letter-spacing:3px;
+  }
+  .level-card .level-desc{
+    font-size:13px;
+    letter-spacing:1px;
+    color:#d8d4c4;
+    text-transform:uppercase;
+  }
+
   /* ===== Oyun ekranı ===== */
   .game-top{
     display:flex;
@@ -198,6 +252,8 @@
     text-transform:uppercase;
     margin-bottom:18px;
   }
+  #levelTag.tag-hard{color:var(--red);}
+  #levelTag.tag-normal{color:var(--gold);}
 
   /* Geri sayım dairesi */
   .countdown-wrap{
@@ -261,8 +317,23 @@
     opacity:0;
     transform:scale(.7);
   }
-  .side.team-a{color:var(--chalk);}
+  .side.team-a{
+    color:var(--chalk);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+  }
   .side.team-b{color:var(--gold);}
+  .flag-icon{
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    object-fit:cover;
+    border:2px solid rgba(244,241,232,0.4);
+    box-shadow:0 2px 8px rgba(0,0,0,.35);
+    flex-shrink:0;
+  }
   .side.pop{
     animation:popIn .5s cubic-bezier(.34,1.56,.64,1) forwards;
   }
@@ -324,6 +395,7 @@
     .side{font-size:26px;}
     .countdown-num{font-size:72px;}
     .countdown-circle{width:150px; height:150px;}
+    .flag-icon{width:30px; height:30px;}
   }
 
   @media (max-width:420px) and (max-height:700px){
@@ -345,33 +417,54 @@
       <span class="ball">⚽</span>
       <h1>HARMANBALL</h1>
     </div>
-    <p class="tagline">Ortak futbolcuyu bul</p>
+    <p class="tagline">Ortak futbolcuyu en hızlı bulan kazanır !</p>
 
     <div class="mode-card">
       <div class="mode-eyebrow">Mod 1</div>
-      <h2>TAKIM <span class="vs">vs</span> TAKIM</h2>
-      <p>İki rastgele kulüp ekrana gelir.<br>Bu iki takımda da oynamış bir futbolcu bul.</p>
-      <button class="btn-start" onclick="startGame('team-team')">Başla</button>
+      <h2>KULÜP <span class="vs">vs</span> KULÜP</h2>
+      <p>İki rastgele kulüp ekrana gelir.<br>Bu iki kulüpte de oynamış bir futbolcu bul.</p>
+      <button class="btn-start" onclick="showLevelSelect('team-team')">Başla</button>
     </div>
 
     <div class="mode-card">
       <div class="mode-eyebrow">Mod 2</div>
-      <h2>ÜLKE <span class="vs">vs</span> TAKIM</h2>
+      <h2>ÜLKE <span class="vs">vs</span> KULÜP</h2>
       <p>Bir ülke ve bir kulüp ekrana gelir.<br>O ülkeden olup o kulüpte oynamış bir futbolcu bul.</p>
-      <button class="btn-start" onclick="startGame('country-team')">Başla</button>
+      <button class="btn-start" onclick="showLevelSelect('country-team')">Başla</button>
     </div>
 
-    <div class="credit">2 kişilik &middot; sesli oyna &middot; kazanan ilk bilen</div>
+  </section>
+
+  <!-- ===== SEVİYE SEÇİM ===== -->
+  <section id="levelSelect" class="screen">
+    <div class="game-top">
+      <button class="back-btn" onclick="goHome()">&larr; Ana Sayfa</button>
+      <div class="game-label" id="levelGameLabel">MOD</div>
+    </div>
+
+    <div class="level-wrap">
+      <p class="level-heading">Zorluk seviyesi seç</p>
+
+      <button class="level-card level-normal" onclick="startGame(currentMode, 'normal')">
+        <span class="level-name">NORMAL</span>
+        <span class="level-desc">45 kulüp &middot; 45 ülke</span>
+      </button>
+
+      <button class="level-card level-hard" onclick="startGame(currentMode, 'hard')">
+        <span class="level-name">ZOR</span>
+        <span class="level-desc">90 kulüp &middot; 90 ülke</span>
+      </button>
+    </div>
   </section>
 
   <!-- ===== OYUN EKRANI ===== -->
   <section id="game" class="screen">
     <div class="game-top">
-      <button class="back-btn" onclick="goHome()">&larr; Ana Sayfa</button>
+      <button class="back-btn" onclick="backToLevelSelect()">&larr; Seviye</button>
       <div class="game-label" id="gameLabel">MOD</div>
     </div>
 
-    <div class="round-counter" id="roundCounter">Tur 1</div>
+    <div class="round-counter"><span id="roundCounter">Tur 1</span> &middot; <span id="levelTag">NORMAL</span></div>
 
     <!-- Geri sayım -->
     <div id="countdownView" class="countdown-wrap">
@@ -384,7 +477,10 @@
     <!-- Eşleşme -->
     <div id="matchupView" class="matchup-wrap" style="display:none;">
       <div class="matchup-card">
-        <div class="side team-a" id="sideA">-</div>
+        <div class="side team-a" id="sideA">
+          <img id="flagImg" class="flag-icon" src="" alt="" style="display:none;">
+          <span id="sideAText">-</span>
+        </div>
         <div class="vs-divider" id="vsDivider"><span class="line"></span><span class="vs-text">VS</span><span class="line"></span></div>
         <div class="side team-b" id="sideB">-</div>
       </div>
@@ -395,43 +491,104 @@
 </div>
 
 <script>
-const TEAMS = ["Bayer Leverkusen","Bayern Münih","Borussia Dortmund","Borussia Mönchengladbach","Eintracht Frankfurt","Hoffenheim","RB Leipzig","Schalke 04","Stuttgart","Wolfsburg","Athletic Club","Atlético Madrid","Barcelona","Betis","Celta Vigo","Real Madrid","Real Sociedad","Sevilla","Valencia","Villarreal","Lille","Lyon","Marseille","Monaco","Nice","Paris Saint-Germain","Rennes","Arsenal","Aston Villa","Blackburn Rovers","Bolton Wanderers","Bournemouth","Brighton & Hove Albion","Chelsea","Crystal Palace","Everton","Fulham","Hull City","Leeds United","Leicester City","Liverpool","Manchester City","Manchester United","Newcastle United","Nottingham Forest","Sunderland","Tottenham Hotspur","West Ham United","Wolverhampton Wanderers","Atalanta","Bologna","Brescia","Como","Fiorentina","Genoa","Inter","Juventus","Lazio","Milan","Napoli","Palermo","Parma","Roma","Sassuolo","Torino","Udinese","Adana Demirspor","Alanyaspor","Ankaragücü","Antalyaspor","Başakşehir","Beşiktaş","Bursaspor","Çaykur Rizespor","Eyüpspor","Fatih Karagümrük","Fenerbahçe","Galatasaray","Gaziantepspor","Gençlerbirliği","Hatayspor","İstanbulspor","Kasımpaşa","Kayserispor","Kocaelispor","Konyaspor","Samsunspor","Sivasspor","Trabzonspor","Köln"];
+const TEAMS_HARD = ["Bayer Leverkusen","Bayern Münih","Borussia Dortmund","Borussia Mönchengladbach","Eintracht Frankfurt","Hoffenheim","RB Leipzig","Schalke 04","Stuttgart","Wolfsburg","Athletic Club","Atlético Madrid","Barcelona","Betis","Celta Vigo","Real Madrid","Real Sociedad","Sevilla","Valencia","Villarreal","Lille","Lyon","Marseille","Monaco","Nice","Paris Saint-Germain","Rennes","Arsenal","Aston Villa","Blackburn Rovers","Bolton Wanderers","Bournemouth","Brighton & Hove Albion","Chelsea","Crystal Palace","Everton","Fulham","Hull City","Leeds United","Leicester City","Liverpool","Manchester City","Manchester United","Newcastle United","Nottingham Forest","Sunderland","Tottenham Hotspur","West Ham United","Wolverhampton Wanderers","Atalanta","Bologna","Brescia","Como","Fiorentina","Genoa","Inter","Juventus","Lazio","Milan","Napoli","Palermo","Parma","Roma","Sassuolo","Torino","Udinese","Adana Demirspor","Alanyaspor","Ankaragücü","Antalyaspor","Başakşehir","Beşiktaş","Bursaspor","Çaykur Rizespor","Eyüpspor","Fatih Karagümrük","Fenerbahçe","Galatasaray","Gaziantepspor","Gençlerbirliği","Hatayspor","İstanbulspor","Kasımpaşa","Kayserispor","Kocaelispor","Konyaspor","Samsunspor","Sivasspor","Trabzonspor","Köln"];
 
-const COUNTRIES = ["Arjantin","İspanya","Fransa","İngiltere","Portekiz","Brezilya","Fas","Hollanda","Belçika","Almanya","Hırvatistan","İtalya","Kolombiya","Meksika","Senegal","Uruguay","ABD","Japonya","İsviçre","İran","Danimarka","Türkiye","Ekvador","Avusturya","Güney Kore","Nijerya","Avustralya","Cezayir","Mısır","Kanada","Norveç","Ukrayna","Fildişi Sahili","Panama","Rusya","Polonya","Galler","İsveç","Macaristan","Çekya","Paraguay","İskoçya","Sırbistan","Kamerun","Tunus","Kongo DC","Slovakya","Yunanistan","Venezuela","Özbekistan","Şili","Peru","Kosta Rika","Romanya","Mali","Katar","Irak","İrlanda","Slovenya","Güney Afrika","Suudi Arabistan","Burkina Faso","Ürdün","Bosna","Honduras","Arnavutluk","Yeşil Burun","BAE","Kuzey Makedonya","Kuzey İrlanda","Jamaika","Gürcistan","Gana","İzlanda","Finlandiya","İsrail","Bolivya","Kosova","Umman","Karadağ","Gine","Curaçao","Haiti","Suriye","Yeni Zelanda","Gabon","Bulgaristan","Angola","Uganda","Zambiya"];
+const COUNTRY_FLAGS = {"ABD":"us", "Almanya":"de", "Angola":"ao", "Arjantin":"ar", "Arnavutluk":"al", "Avustralya":"au", "Avusturya":"at", "BAE":"ae", "Belçika":"be", "Bolivya":"bo", "Bosna":"ba", "Brezilya":"br", "Bulgaristan":"bg", "Burkina Faso":"bf", "Cezayir":"dz", "Curaçao":"cw", "Danimarka":"dk", "Ekvador":"ec", "Fas":"ma", "Fildişi Sahili":"ci", "Finlandiya":"fi", "Fransa":"fr", "Gabon":"ga", "Galler":"gb-wls", "Gana":"gh", "Gine":"gn", "Güney Afrika":"za", "Güney Kore":"kr", "Gürcistan":"ge", "Haiti":"ht", "Hollanda":"nl", "Honduras":"hn", "Hırvatistan":"hr", "Irak":"iq", "Jamaika":"jm", "Japonya":"jp", "Kamerun":"cm", "Kanada":"ca", "Karadağ":"me", "Katar":"qa", "Kolombiya":"co", "Kongo DC":"cd", "Kosova":"xk", "Kosta Rika":"cr", "Kuzey Makedonya":"mk", "Kuzey İrlanda":"gb-nir", "Macaristan":"hu", "Mali":"ml", "Meksika":"mx", "Mısır":"eg", "Nijerya":"ng", "Norveç":"no", "Panama":"pa", "Paraguay":"py", "Peru":"pe", "Polonya":"pl", "Portekiz":"pt", "Romanya":"ro", "Rusya":"ru", "Senegal":"sn", "Slovakya":"sk", "Slovenya":"si", "Suriye":"sy", "Suudi Arabistan":"sa", "Sırbistan":"rs", "Tunus":"tn", "Türkiye":"tr", "Uganda":"ug", "Ukrayna":"ua", "Umman":"om", "Uruguay":"uy", "Venezuela":"ve", "Yeni Zelanda":"nz", "Yeşil Burun":"cv", "Yunanistan":"gr", "Zambiya":"zm", "Çekya":"cz", "Özbekistan":"uz", "Ürdün":"jo", "İngiltere":"gb-eng", "İran":"ir", "İrlanda":"ie", "İskoçya":"gb-sct", "İspanya":"es", "İsrail":"il", "İsveç":"se", "İsviçre":"ch", "İtalya":"it", "İzlanda":"is", "Şili":"cl"};
+
+function flagUrl(countryName){
+  const code = COUNTRY_FLAGS[countryName];
+  return code ? `https://raw.githubusercontent.com/hampusborgos/country-flags/main/svg/${code}.svg` : null;
+}
+
+const COUNTRIES_HARD = ["Arjantin","İspanya","Fransa","İngiltere","Portekiz","Brezilya","Fas","Hollanda","Belçika","Almanya","Hırvatistan","İtalya","Kolombiya","Meksika","Senegal","Uruguay","ABD","Japonya","İsviçre","İran","Danimarka","Türkiye","Ekvador","Avusturya","Güney Kore","Nijerya","Avustralya","Cezayir","Mısır","Kanada","Norveç","Ukrayna","Fildişi Sahili","Panama","Rusya","Polonya","Galler","İsveç","Macaristan","Çekya","Paraguay","İskoçya","Sırbistan","Kamerun","Tunus","Kongo DC","Slovakya","Yunanistan","Venezuela","Özbekistan","Şili","Peru","Kosta Rika","Romanya","Mali","Katar","Irak","İrlanda","Slovenya","Güney Afrika","Suudi Arabistan","Burkina Faso","Ürdün","Bosna","Honduras","Arnavutluk","Yeşil Burun","BAE","Kuzey Makedonya","Kuzey İrlanda","Jamaika","Gürcistan","Gana","İzlanda","Finlandiya","İsrail","Bolivya","Kosova","Umman","Karadağ","Gine","Curaçao","Haiti","Suriye","Yeni Zelanda","Gabon","Bulgaristan","Angola","Uganda","Zambiya"];
+
+const TEAMS_NORMAL = ["Adana Demirspor","Arsenal","Aston Villa","Atalanta","Atlético Madrid","Barcelona","Başakşehir","Bayer Leverkusen","Bayern Münih","Beşiktaş","Bologna","Borussia Dortmund","Chelsea","Como","Crystal Palace","Everton","Fenerbahçe","Fiorentina","Galatasaray","Inter","Juventus","Kasımpaşa","Lazio","Lille","Liverpool","Lyon","Manchester City","Manchester United","Marseille","Milan","Monaco","Napoli","Newcastle United","Paris Saint-Germain","Parma","RB Leipzig","Real Madrid","Real Sociedad","Roma","Schalke 04","Sevilla","Tottenham Hotspur","Trabzonspor","Valencia","West Ham United"];
+
+const COUNTRIES_NORMAL = ["ABD","Almanya","Arjantin","Avustralya","Avusturya","Belçika","Brezilya","Cezayir","Çekya","Danimarka","Ekvador","Fas","Fildişi Sahili","Fransa","Galler","Güney Kore","Hırvatistan","Hollanda","İngiltere","İskoçya","İspanya","İsveç","İsviçre","İtalya","Japonya","Kamerun","Kanada","Kolombiya","Kongo DC","Macaristan","Meksika","Mısır","Nijerya","Norveç","Polonya","Portekiz","Rusya","Senegal","Sırbistan","Slovakya","Tunus","Türkiye","Ukrayna","Uruguay","Yunanistan"];
 
 let currentMode = null;
+let currentLevel = null;
 let round = 0;
 let countdownTimer = null;
 let lastPair = null;
+let usedTeams = new Set();
+let usedCountries = new Set();
 
-function pickTwo(arr){
-  let i = Math.floor(Math.random()*arr.length);
-  let j = Math.floor(Math.random()*arr.length);
-  while(j === i) j = Math.floor(Math.random()*arr.length);
-  return [arr[i], arr[j]];
+function pickUnique(arr, usedSet){
+  let pool = arr.filter(x => !usedSet.has(x));
+  if(pool.length === 0){
+    usedSet.clear();
+    pool = arr.slice();
+  }
+  const pick = pool[Math.floor(Math.random()*pool.length)];
+  usedSet.add(pick);
+  return pick;
+}
+
+function pickTwoUnique(arr, usedSet){
+  const a = pickUnique(arr, usedSet);
+  let pool = arr.filter(x => !usedSet.has(x) && x !== a);
+  if(pool.length === 0){
+    // a hariç her şeyi tekrar kullanılabilir yap
+    arr.forEach(x => { if(x !== a) usedSet.delete(x); });
+    pool = arr.filter(x => x !== a);
+  }
+  const b = pool[Math.floor(Math.random()*pool.length)];
+  usedSet.add(b);
+  return [a, b];
+}
+
+function getTeamsList(){
+  return currentLevel === 'hard' ? TEAMS_HARD : TEAMS_NORMAL;
+}
+function getCountriesList(){
+  return currentLevel === 'hard' ? COUNTRIES_HARD : COUNTRIES_NORMAL;
 }
 
 function getPair(){
+  const teams = getTeamsList();
   if(currentMode === 'team-team'){
-    return pickTwo(TEAMS);
+    return pickTwoUnique(teams, usedTeams);
   } else {
-    const country = COUNTRIES[Math.floor(Math.random()*COUNTRIES.length)];
-    const team = TEAMS[Math.floor(Math.random()*TEAMS.length)];
+    const countries = getCountriesList();
+    const country = pickUnique(countries, usedCountries);
+    const team = pickUnique(teams, usedTeams);
     return [country, team];
   }
 }
 
-function startGame(mode){
+function showLevelSelect(mode){
   currentMode = mode;
+  document.getElementById('levelGameLabel').textContent = mode === 'team-team' ? 'KULÜP vs KULÜP' : 'ÜLKE vs KULÜP';
+  showScreen('levelSelect');
+}
+
+function startGame(mode, level){
+  currentMode = mode;
+  currentLevel = level;
   round = 0;
-  document.getElementById('gameLabel').textContent = mode === 'team-team' ? 'TAKIM vs TAKIM' : 'ÜLKE vs TAKIM';
+  usedTeams = new Set();
+  usedCountries = new Set();
+  document.getElementById('gameLabel').textContent = mode === 'team-team' ? 'KULÜP vs KULÜP' : 'ÜLKE vs KULÜP';
+
+  const levelTag = document.getElementById('levelTag');
+  levelTag.textContent = level === 'hard' ? 'ZOR' : 'NORMAL';
+  levelTag.classList.remove('tag-hard','tag-normal');
+  levelTag.classList.add(level === 'hard' ? 'tag-hard' : 'tag-normal');
+
   showScreen('game');
   nextRound();
 }
 
+
 function goHome(){
   clearInterval(countdownTimer);
   showScreen('home');
+}
+
+function backToLevelSelect(){
+  clearInterval(countdownTimer);
+  showScreen('levelSelect');
 }
 
 function showScreen(id){
@@ -479,10 +636,25 @@ function revealMatchup(){
 
   const sideA = document.getElementById('sideA');
   const sideB = document.getElementById('sideB');
+  const sideAText = document.getElementById('sideAText');
+  const flagImg = document.getElementById('flagImg');
   const vsDivider = document.getElementById('vsDivider');
 
-  sideA.textContent = lastPair[0];
+  sideAText.textContent = lastPair[0];
   sideB.textContent = lastPair[1];
+
+  if(currentMode === 'country-team'){
+    const url = flagUrl(lastPair[0]);
+    if(url){
+      flagImg.src = url;
+      flagImg.alt = lastPair[0];
+      flagImg.style.display = 'inline-block';
+    } else {
+      flagImg.style.display = 'none';
+    }
+  } else {
+    flagImg.style.display = 'none';
+  }
 
   void sideA.offsetWidth;
   sideA.classList.add('pop');
